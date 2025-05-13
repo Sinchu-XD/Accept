@@ -13,23 +13,21 @@ bot_token = "7443259882:AAE8tgZbbhKVaYbWdfwCe6rwJt7ADSRicYM" # Replace with your
 # Initialize Telethon client
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-async def accept_all_pending_requests(channel):
-    # Fetch all participants of the channel
-    participants = await client(GetParticipantsRequest(channel, filter=ChannelParticipant.PENDING, limit=1500))
-    
-    accepted = 0
-    for participant in participants.users:
-        try:
-            # Accept the pending request (if it's a user awaiting approval)
-            print(f'Accepting request from {participant.username}...')
-            await client(EditBannedRequest(channel, participant.id, BANNED_RIGHTS))
-            accepted += 1
-            await asyncio.sleep(2)  # Delay to avoid hitting rate limits (adjust as needed)
-        except Exception as e:
-            print(f'Error accepting request from {participant.username}: {e}')
-            await asyncio.sleep(5)  # Delay in case of error (e.g., rate limit)
+from telethon.tl.functions.channels import GetParticipantsRequest
+from telethon.tl.types import ChannelParticipantsRequests
 
-    return accepted
+async def accept_all_pending_requests(channel):
+    participants = await client(GetParticipantsRequest(
+        channel=channel,
+        filter=ChannelParticipantsRequests(),
+        offset=0,
+        limit=100,
+        hash=0
+    ))
+
+    for user in participants.users:
+        await client.approve_join_request(channel, user.id)
+
 
 @client.on(events.NewMessage(pattern='/accept_requests'))
 async def handler(event):
