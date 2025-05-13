@@ -1,7 +1,7 @@
 import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import GetParticipantsRequest
-from telethon.tl.types import ChannelParticipantStatus
+from telethon.tl.types import ChannelParticipant
 from telethon.tl.functions.channels import EditBannedRequest
 import time
 
@@ -15,7 +15,7 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 async def accept_all_pending_requests(channel):
     # Fetch all participants of the channel
-    participants = await client(GetParticipantsRequest(channel, filter=ChannelParticipantStatus.PENDING, limit=1500))
+    participants = await client(GetParticipantsRequest(channel, filter=ChannelParticipant.PENDING, limit=1500))
     
     accepted = 0
     for participant in participants.users:
