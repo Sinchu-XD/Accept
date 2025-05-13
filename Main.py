@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import GetParticipantsRequest
-from telethon.tl.types import ChannelParticipant, PeerChannel
+from telethon.tl.types import PeerChannel, ChannelParticipant
 from telethon.tl.functions.messages import ImportChatInviteRequest
 import time
 
@@ -32,7 +32,7 @@ async def accept_all_pending_requests(channel):
     while True:
         result = await client(GetParticipantsRequest(
             channel=channel,
-            filter=ChannelParticipant.PENDING,  # This is the correct filter for pending users
+            filter=ChannelParticipant(),  # Filter for all participants (no specific filter)
             offset=offset,
             limit=100,
             hash=0
@@ -42,9 +42,11 @@ async def accept_all_pending_requests(channel):
             break
 
         for user in result.users:
-            approved = await approve_user(channel, user.id)
-            if approved:
-                total_approved += 1
+            # Check if the user status is pending
+            if user.status == "PENDING":
+                approved = await approve_user(channel, user.id)
+                if approved:
+                    total_approved += 1
 
         offset += len(result.users)
 
