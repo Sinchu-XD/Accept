@@ -1,7 +1,7 @@
 import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import GetParticipantsRequest
-from telethon.tl.types import ChannelParticipant
+from telethon.tl.types import ChannelParticipant, PeerChannel
 from telethon.tl.functions.channels import EditBannedRequest
 import time
 
