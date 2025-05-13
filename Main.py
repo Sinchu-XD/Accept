@@ -6,9 +6,9 @@ from telethon.tl.functions.channels import EditBannedRequest
 import time
 
 # Replace with your own API details
-api_id = 'API_ID'  # Replace with your API ID
-api_hash = 'API_HASH'  # Replace with your API Hash
-bot_token = 'BOT_TOKEN'  # Replace with your Bot Token
+api_id = 6067591  # Replace with your API ID
+api_hash = "94e17044c2393f43fda31d3afe77b26b"  # Replace with your API Hash
+bot_token = "7443259882:AAE8tgZbbhKVaYbWdfwCe6rwJt7ADSRicYM" # Replace with your Bot Token
 
 # Initialize Telethon client
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
