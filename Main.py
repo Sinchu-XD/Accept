@@ -24,14 +24,15 @@ async def approve_user(channel, user_id):
         print(f"Error approving user {user_id}: {e}")
         return False
 
-# Function to accept pending join requests
+# Function to accept all pending requests in the channel
 async def accept_all_pending_requests(channel):
     total_approved = 0
     offset = 0
+
     while True:
         result = await client(GetParticipantsRequest(
             channel=channel,
-            filter=ChannelParticipant(),
+            filter=ChannelParticipant.PENDING,  # This is the correct filter for pending users
             offset=offset,
             limit=100,
             hash=0
@@ -41,10 +42,9 @@ async def accept_all_pending_requests(channel):
             break
 
         for user in result.users:
-            if user.status == "PENDING":  # If the user is pending
-                approved = await approve_user(channel, user.id)
-                if approved:
-                    total_approved += 1
+            approved = await approve_user(channel, user.id)
+            if approved:
+                total_approved += 1
 
         offset += len(result.users)
 
@@ -54,7 +54,7 @@ async def accept_all_pending_requests(channel):
 async def handler(event):
     try:
         # Replace with your channel ID or username
-        channel = await client.get_entity(-1002461664947)
+        channel = await client.get_entity(-1002461664947)  # Replace with your actual channel ID or @username
         accepted = await accept_all_pending_requests(channel)
         await event.reply(f"✅ Approved {accepted} pending join requests!")
     except Exception as e:
