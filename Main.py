@@ -11,14 +11,11 @@ bot_token = "7443259882:AAE8tgZbbhKVaYbWdfwCe6rwJt7ADSRicYM"  # Replace with you
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# Function to manually approve requests
+# Function to approve join requests manually
 async def approve_user(channel, user_id):
     try:
         # Use ImportChatInviteRequest for manual approval
-        await client(ImportChatInviteRequest(
-            channel=channel,
-            user_id=user_id
-        ))
+        await client(ImportChatInviteRequest(channel=channel, user_id=user_id))
         return True
     except Exception as e:
         print(f"Error approving user {user_id}: {e}")
@@ -32,7 +29,7 @@ async def accept_all_pending_requests(channel):
     while True:
         result = await client(GetParticipantsRequest(
             channel=channel,
-            filter=ChannelParticipant(),  # Filter for all participants (no specific filter)
+            filter=ChannelParticipant(),  # We don't use the PENDING filter
             offset=offset,
             limit=100,
             hash=0
@@ -42,8 +39,8 @@ async def accept_all_pending_requests(channel):
             break
 
         for user in result.users:
-            # Check if the user status is pending
-            if user.status == "PENDING":
+            # Checking if the user is in the "PENDING" state
+            if user.status == "PENDING":  # Check for pending users
                 approved = await approve_user(channel, user.id)
                 if approved:
                     total_approved += 1
