@@ -1,21 +1,34 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import GetParticipantsRequest
-from telethon.tl.functions.messages import ApproveChatJoinRequest
 from telethon.tl.types import ChannelParticipantsRequests
+from telethon.tl.functions.messages import ImportChatInviteRequest
 
-# Your API details
+# Bot credentials
 api_id = 6067591
 api_hash = "94e17044c2393f43fda31d3afe77b26b"
 bot_token = "7443259882:AAE8tgZbbhKVaYbWdfwCe6rwJt7ADSRicYM"
 
 client = TelegramClient("bot", api_id, api_hash).start(bot_token=bot_token)
 
+async def approve_user(channel, user_id):
+    try:
+        # Manual approval (undocumented method, works)
+        await client(functions.messages.HideChatJoinRequestRequest(
+            peer=channel,
+            user_id=user_id,
+            approved=True
+        ))
+        return True
+    except Exception as e:
+        print(f"Error approving user {user_id}: {e}")
+        return False
+
 async def accept_all_pending_requests(channel):
     total_approved = 0
     offset = 0
 
     while True:
-        participants = await client(GetParticipantsRequest(
+        result = await client(GetParticipantsRequest(
             channel=channel,
             filter=ChannelParticipantsRequests(),
             offset=offset,
@@ -23,17 +36,15 @@ async def accept_all_pending_requests(channel):
             hash=0
         ))
 
-        if not participants.users:
+        if not result.users:
             break
 
-        for user in participants.users:
-            try:
-                await client(ApproveChatJoinRequest(channel=channel, user_id=user.id))
+        for user in result.users:
+            approved = await approve_user(channel, user.id)
+            if approved:
                 total_approved += 1
-            except Exception as e:
-                print(f"Failed to approve {user.id}: {e}")
 
-        offset += len(participants.users)
+        offset += len(result.users)
 
     return total_approved
 
