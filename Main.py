@@ -34,7 +34,8 @@ async def accept_all_pending_requests(channel):
 @client.on(events.NewMessage(pattern='/accept_requests'))
 async def handler(event):
     # Replace 'channel_username' with the actual username or ID of your channel
-    channel = await client.get_entity('channel_username')
+    channel = await client.get_entity(PeerChannel(-1002461664947))
+
     
     # Accept all pending requests
     accepted = await accept_all_pending_requests(channel)
